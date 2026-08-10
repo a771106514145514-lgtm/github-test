@@ -1,1 +1,523 @@
-Hello！GitHub 連接成功！
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>吱吱店長 萬能房產計算機｜房地合一稅・房貸・購屋能力</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header-card">
+    <img class="avatar" src="assets/mascot-avatar.png" alt="吱吱店長">
+    <div>
+      <h1>吱吱店長 萬能房產計算機</h1>
+      <div class="tagline">房地合一稅・房貸試算・購屋能力，一次算給你看</div>
+    </div>
+  </div>
+
+  <!-- Tab nav -->
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="ho"><span class="icon">📐</span>房地合一</button>
+    <button class="tab-btn" data-tab="aff"><span class="icon">💼</span>購屋能力</button>
+    <button class="tab-btn" data-tab="loan"><span class="icon">🏠</span>房貸試算</button>
+    <button class="tab-btn" data-tab="misc"><span class="icon">🧾</span>買賣雜費</button>
+    <button class="tab-btn" data-tab="conv"><span class="icon">🔄</span>坪數換算</button>
+    <button class="tab-btn" data-tab="park"><span class="icon">🚗</span>車位折算</button>
+    <button class="tab-btn" data-tab="net"><span class="icon">💰</span>賣方實拿速算</button>
+  </div>
+
+  <!-- ============ Tab 1: 房地合一 ============ -->
+  <div class="panel active" id="panel-ho">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">房地合一</div>
+        <div class="card-subtitle">計算個人房地合一稅</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field-row">
+        <div class="field">
+          <label>賣出總價 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="ho-price" placeholder="例如: 2000">
+        </div>
+        <div class="field">
+          <label>取得成本 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="ho-cost" placeholder="例如: 1500">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>土地漲價總數額 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="ho-landgain" placeholder="參考土增稅單">
+        </div>
+        <div class="field">
+          <label>取得相關費用 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="ho-acqfee" placeholder="買時仲介、契稅等">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>移轉費用扣除方式</label>
+        <div class="btn-group cols-2" id="ho-transfer-group">
+          <button class="choice-btn active" data-mode="default">預設 3%（上限 30 萬）</button>
+          <button class="choice-btn" data-mode="manual">手動輸入</button>
+        </div>
+        <div id="ho-transfer-manual-wrap" style="display:none; margin-top:10px;">
+          <input type="text" inputmode="decimal" id="ho-transfer-manual" placeholder="例如: 50">
+        </div>
+        <div class="formula-note" id="ho-transfer-auto-note">系統計算：0.00 萬（成交價 3%，上限 30 萬）</div>
+      </div>
+
+      <div class="field">
+        <label>持有期間</label>
+        <div class="btn-group cols-4" id="ho-period-group">
+          <button class="choice-btn active" data-rate="0.45">2 年內</button>
+          <button class="choice-btn" data-rate="0.35">2-5 年</button>
+          <button class="choice-btn" data-rate="0.20">5-10 年</button>
+          <button class="choice-btn" data-rate="0.15">10 年以上</button>
+        </div>
+      </div>
+
+      <div class="toggle-box">
+        <div>
+          <div class="toggle-label">自用住宅滿 6 年優惠</div>
+          <div class="toggle-desc">400 萬免稅 + 超過部分 10%</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="ho-selfuse">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-tile emph">
+        <div class="r-label">房地合一稅</div>
+        <div class="r-value" id="ho-result-tax">$—</div>
+      </div>
+      <div class="result-tile">
+        <div class="mini-result"><span class="mr-label">稅基</span><span class="mr-value" id="ho-result-base">— 萬</span></div>
+        <div class="mini-result"><span class="mr-label">適用稅率</span><span class="mr-value" id="ho-result-rate">—</span></div>
+        <div class="mini-result"><span class="mr-label">移轉費用</span><span class="mr-value" id="ho-result-transfer">— 萬</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 2: 購屋能力 ============ -->
+  <div class="panel" id="panel-aff">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">購屋能力</div>
+        <div class="card-subtitle">從月收入反推可買總價（試算利率 2.3%）</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field-row">
+        <div class="field">
+          <label>月收入 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="aff-income" placeholder="例如: 8">
+        </div>
+        <div class="field">
+          <label>現有自備款 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="aff-savings" placeholder="例如: 300">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>負債比上限（月收入佔比）</label>
+        <div class="btn-group cols-3" id="aff-dti-group">
+          <button class="choice-btn active" data-rate="0.33">保守 33%</button>
+          <button class="choice-btn" data-rate="0.50">積極 50%</button>
+          <button class="choice-btn" data-rate="0.60">緊繃 60%</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>貸款年限</label>
+        <div class="btn-group cols-2" id="aff-years-group">
+          <button class="choice-btn" data-years="20">20 年</button>
+          <button class="choice-btn active" data-years="30">30 年</button>
+        </div>
+        <div class="formula-note">＊試算利率以 2.3% 估計</div>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-tile emph">
+        <div class="r-label">建議房屋總價上限</div>
+        <div class="r-value" id="aff-result-total">$—</div>
+      </div>
+      <div class="result-tile">
+        <div class="mini-result"><span class="mr-label">建議貸款金額</span><span class="mr-value" id="aff-result-loan">$—</span></div>
+        <div class="mini-result"><span class="mr-label">每月房貸支出</span><span class="mr-value" id="aff-result-monthly">$—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 3: 房貸試算 ============ -->
+  <div class="panel" id="panel-loan">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">房貸試算</div>
+        <div class="card-subtitle">本利均攤計算每月還款金額（支援寬限期）</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field-row">
+        <div class="field">
+          <label>貸款金額 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="loan-amount" placeholder="例如: 1000">
+        </div>
+        <div class="field">
+          <label>年利率 <span class="hint">%</span></label>
+          <input type="text" inputmode="decimal" id="loan-rate" placeholder="例如: 2.2" value="2.2">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>貸款期限 <span class="hint">年</span></label>
+          <input type="text" inputmode="decimal" id="loan-years" value="30">
+        </div>
+        <div class="field">
+          <label>寬限期 <span class="hint">年</span></label>
+          <input type="text" inputmode="decimal" id="loan-grace" value="0">
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-tile emph">
+        <div class="r-label">每月應繳（本息均攤）</div>
+        <div class="r-value" id="loan-result-monthly">$—</div>
+      </div>
+      <div class="result-tile">
+        <div class="mini-result"><span class="mr-label">寬限期內每月（只繳利息）</span><span class="mr-value" id="loan-result-grace">$—</span></div>
+        <div class="mini-result"><span class="mr-label">總利息支出</span><span class="mr-value" id="loan-result-interest">$—</span></div>
+        <div class="mini-result"><span class="mr-label">總還款金額</span><span class="mr-value" id="loan-result-repay">$—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 4: 買賣雜費 ============ -->
+  <div class="panel" id="panel-misc">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">買賣雜費</div>
+        <div class="card-subtitle">買方 / 賣方雜費試算</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field">
+        <label>成交總價 <span class="hint">萬</span></label>
+        <input type="text" inputmode="decimal" id="misc-price" placeholder="例如: 1300">
+      </div>
+
+      <div class="field">
+        <label>您的身分</label>
+        <div class="btn-group cols-2" id="misc-role-group">
+          <button class="choice-btn active" data-role="buyer">買方 (Buyer)</button>
+          <button class="choice-btn" data-role="seller">賣方 (Seller)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section highlight" id="misc-buyer-block">
+      <div class="section-header"><span class="section-title">買方預估雜項費用</span></div>
+      <div class="field-row">
+        <div class="field">
+          <label>房屋評定現值 <span class="hint">萬・房屋稅單金額</span></label>
+          <input type="text" inputmode="decimal" id="misc-houseval" placeholder="例如: 260">
+        </div>
+        <div class="field">
+          <label>土地申報地價總額 <span class="hint">萬・地價稅單金額</span></label>
+          <input type="text" inputmode="decimal" id="misc-landval" placeholder="例如: 180">
+        </div>
+      </div>
+      <div class="field">
+        <label>權狀張數 <span class="hint">張・預設 2（土地+建物）</span></label>
+        <input type="text" inputmode="decimal" id="misc-sheets" value="2">
+      </div>
+
+      <div class="result-tile emph" style="margin-top:6px;">
+        <div class="r-label">費用總計</div>
+        <div class="r-value" id="misc-result-total">$—</div>
+      </div>
+
+      <div class="fee-list" style="margin-top:12px;">
+        <div class="fee-row"><span class="fee-name">契稅<span class="fee-formula">房屋評定現值 × 6%</span></span><span class="fee-value" id="misc-fee-deed">$—</span></div>
+        <div class="fee-row"><span class="fee-name">印花稅<span class="fee-formula">公定契約書上房地價 × 0.1%</span></span><span class="fee-value" id="misc-fee-stamp">$—</span></div>
+        <div class="fee-row"><span class="fee-name">地政登記規費<span class="fee-formula">(土地申報地價+房屋評定現值) × 0.1%</span></span><span class="fee-value" id="misc-fee-reg">$—</span></div>
+        <div class="fee-row"><span class="fee-name">書狀費用<span class="fee-formula">每張 80 元</span></span><span class="fee-value" id="misc-fee-doc">$—</span></div>
+      </div>
+
+      <div class="formula-note">
+        ＊公部門費用依實際稅單金額為主／代書收費依代書事務所為主。<br>
+        其他成本（銀行徵估、開辦、手續費、產險費等）依銀行規定，未列入以上計算。
+      </div>
+    </div>
+
+    <div class="section" id="misc-seller-block" style="display:none;">
+      <div class="section-header"><span class="section-title">賣方預估雜項費用</span></div>
+      <div class="section-desc">賣方主要負擔項目為代書費、服務費、土增稅、房地合一稅等，完整試算請至「賣方實拿速算」分頁。</div>
+      <button class="btn-dark" type="button" onclick="goToTab('net')">前往賣方實拿速算 →</button>
+    </div>
+  </div>
+
+  <!-- ============ Tab 5: 坪數換算 ============ -->
+  <div class="panel" id="panel-conv">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">坪數換算</div>
+        <div class="card-subtitle">坪 ⇄ 平方公尺</div>
+      </div>
+    </div>
+
+    <div class="section highlight">
+      <div class="formula-note on-gold" style="margin-top:0;">
+        換算公式<br>1 坪 = 3.30579 平方公尺<br>1 平方公尺 = 0.3025 坪
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field-row">
+        <div class="field">
+          <label>坪數</label>
+          <input type="text" inputmode="decimal" id="conv-ping" placeholder="0">
+        </div>
+        <div class="field">
+          <label>平方公尺 <span class="hint">m²</span></label>
+          <input type="text" inputmode="decimal" id="conv-sqm" placeholder="0">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 6: 車位折算 ============ -->
+  <div class="panel" id="panel-park">
+    <div class="card">
+      <div class="card-title-wrap">
+        <div class="card-title">車位折算</div>
+        <div class="card-subtitle">車位坪數・單價・總價，輸入任兩項自動算出</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="field">
+        <label>車位坪數 <span class="hint">坪</span></label>
+        <input type="text" inputmode="decimal" id="park-ping" placeholder="例如: 8">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>車位單價 <span class="hint">萬/坪</span></label>
+          <input type="text" inputmode="decimal" id="park-unit" placeholder="例如: 22.5">
+        </div>
+        <div class="field">
+          <label>車位總價 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="park-total" placeholder="例如: 180">
+        </div>
+      </div>
+      <div class="formula-note">
+        填寫車位坪數後，輸入單價或總價其中一項，另一項會自動算出。<br>
+        常見行情參考：坡道平面式車位單價較高、機械式車位單價通常較低，實際依社區行情為準。
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Tab 7: 賣方實拿速算 ============ -->
+  <div class="panel" id="panel-net">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title-wrap">
+          <div class="card-title">賣方實拿速算</div>
+          <div class="card-subtitle">輸入欄位後即時計算，所有數字連動更新</div>
+        </div>
+        <button class="clear-btn" id="net-clear-btn" type="button">↻ 全部清除</button>
+      </div>
+    </div>
+
+    <div class="section highlight">
+      <div class="section-header">
+        <span class="section-title">基礎資訊</span><span class="tag">黃色輸入</span>
+      </div>
+      <div class="field-row" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="field">
+          <label>總坪數 <span class="hint">含車位</span></label>
+          <input type="text" inputmode="decimal" id="net-totalping" placeholder="例如: 50.23">
+        </div>
+        <div class="field">
+          <label>車位坪數</label>
+          <input type="text" inputmode="decimal" id="net-parkping" placeholder="例如: 22.16">
+        </div>
+        <div class="field">
+          <label>車位價格 <span class="hint">萬</span></label>
+          <input type="text" inputmode="decimal" id="net-parkprice" placeholder="例如: 180">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">取得資訊（算稅用）</span><span class="tag muted">課稅基礎</span>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>房屋取得價格 <span class="hint">萬・屋主當年買多少</span></label>
+          <input type="text" inputmode="decimal" id="net-acqprice" placeholder="例如: 1052">
+        </div>
+        <div class="field">
+          <label>取得相關成本 <span class="hint">萬・仲、契、印、代</span></label>
+          <input type="text" inputmode="decimal" id="net-acqfee" placeholder="例如: 13">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>前次移轉日期 <span class="hint">民國年</span></label>
+        <div class="date-row">
+          <select id="net-prev-y"></select>
+          <select id="net-prev-m"></select>
+          <select id="net-prev-d"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>本次預計交易日期 <span class="hint">民國年</span></label>
+        <div class="date-row">
+          <select id="net-curr-y"></select>
+          <select id="net-curr-m"></select>
+          <select id="net-curr-d"></select>
+        </div>
+      </div>
+
+      <div class="toggle-box">
+        <div>
+          <div class="toggle-label">自用住宅滿 6 年優惠</div>
+          <div class="toggle-desc">勾選 → 免稅額 400 萬、超過部分 10% 稅率</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="net-selfuse">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="formula-note">請填寫兩個日期 → 自動判定持有期間與稅率</div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">手動輸入項目</span><span class="tag muted">查單後填入</span>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>土增稅 <span class="hint">萬・依稅單</span></label>
+          <input type="text" inputmode="decimal" id="net-landtax" placeholder="例如: 1.6">
+        </div>
+        <div class="field">
+          <label>剩餘貸款餘額 <span class="hint">萬・要還銀行的</span></label>
+          <input type="text" inputmode="decimal" id="net-loanleft" placeholder="例如: 840">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">服務費用計算方式</span><span class="tag">影響實拿</span>
+      </div>
+      <div class="section-desc">賣方實際付的服務費，會從實拿扣掉</div>
+      <div class="btn-group cols-2" id="net-svc-group">
+        <button class="choice-btn active" data-mode="default">預設 4%</button>
+        <button class="choice-btn" data-mode="manual">手動輸入</button>
+      </div>
+      <div id="net-svc-manual-wrap" style="display:none; margin-top:10px;">
+        <input type="text" inputmode="decimal" id="net-svc-manual" placeholder="例如: 40">
+      </div>
+      <div class="formula-note">服務費 = 成交總價 × 4%</div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">房地合一可認列移轉費用</span><span class="tag">影響稅基</span>
+      </div>
+      <div class="section-desc">算房地合一稅時可從稅基扣除的金額（抵稅用，不是真的支出）</div>
+      <div class="btn-group cols-3" id="net-transfer-group">
+        <button class="choice-btn active" data-mode="samesvc">同服務費</button>
+        <button class="choice-btn" data-mode="manual">手動輸入</button>
+        <button class="choice-btn" data-mode="percent3">3% 上限 30萬</button>
+      </div>
+      <div id="net-transfer-manual-wrap" style="display:none; margin-top:10px;">
+        <input type="text" inputmode="decimal" id="net-transfer-manual" placeholder="例如: 40">
+      </div>
+      <div class="formula-note">可認列移轉費用 = 同服務費金額</div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">想賣的價格</span><span class="tag">雙向連動</span>
+      </div>
+      <div class="section-desc">直接輸入總價或單價，另一欄會自動算出</div>
+      <div class="field">
+        <label>想賣的總價 <span class="hint">萬</span></label>
+        <input type="text" inputmode="decimal" id="net-total-price" placeholder="例如: 1585">
+      </div>
+      <div class="field">
+        <label>房屋單價 <span class="hint">萬/坪・已扣車位</span></label>
+        <input type="text" inputmode="decimal" id="net-unit-price" placeholder="例如: 50.05">
+      </div>
+      <div class="link-note">輸入後自動顯示「房屋價格 / 房屋坪數」</div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-tile">
+        <div class="r-label">房屋單價（談價用）</div>
+        <div class="r-value" id="net-result-unitprice">—<span class="r-unit">萬/坪</span></div>
+      </div>
+      <div class="result-tile">
+        <div class="r-label">房地合一稅</div>
+        <div class="r-value" id="net-result-tax">—<span class="r-unit">萬</span></div>
+      </div>
+      <div class="result-tile emph">
+        <div class="r-label">屋主實拿（扣全部費用 + 稅 + 貸款）</div>
+        <div class="r-value" id="net-result-net">—<span class="r-unit">萬</span></div>
+      </div>
+
+      <div class="fee-list">
+        <div class="fee-title">費用明細</div>
+        <div class="fee-row"><span class="fee-name">代書費（潤筆）</span><span class="fee-value" id="net-fee-scribe">0.10 萬</span></div>
+        <div class="fee-row"><span class="fee-name">實價登錄費</span><span class="fee-value" id="net-fee-registry">0.20 萬</span></div>
+        <div class="fee-row"><span class="fee-name">履保費（成交價 × 萬分之三）</span><span class="fee-value" id="net-fee-escrow">— 萬</span></div>
+        <div class="fee-row"><span class="fee-name">服務費（成交價 × 4%）</span><span class="fee-value" id="net-fee-svc">— 萬</span></div>
+        <div class="fee-row"><span class="fee-name">塗銷費＋稅籍資料</span><span class="fee-value" id="net-fee-cancel">0.60 萬</span></div>
+        <div class="fee-row"><span class="fee-name">土增稅</span><span class="fee-value" id="net-fee-landtax">— 萬</span></div>
+        <div class="fee-row"><span class="fee-name">房地合一稅</span><span class="fee-value" id="net-fee-hotax">— 萬</span></div>
+        <div class="fee-row"><span class="fee-name">剩餘貸款</span><span class="fee-value" id="net-fee-loanleft">— 萬</span></div>
+        <div class="fee-row total"><span class="fee-name">合計扣除</span><span class="fee-value" id="net-fee-total">— 萬</span></div>
+      </div>
+    </div>
+
+    <button class="btn-dark" id="net-print-btn" type="button">🖨 列印 / 存 PDF 給客戶</button>
+    <div class="btn-caption">輸出一張乾淨好看、客人一眼看懂的「賣方實拿試算表」（含實拿金額、費用明細與聯絡方式）</div>
+
+    <div class="reverse-box">
+      <div class="rb-title">🔁 反推實拿：屋主說「我要拿 ___ 萬」</div>
+      <div class="rb-desc">輸入屋主想實拿的金額，系統反推總價與單價應該掛多少（其他欄位需先填好）</div>
+      <input type="text" inputmode="decimal" id="net-reverse-input" placeholder="例如：屋主想拿 600 萬">
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 吱吱店長 萬能房產計算機｜僅供參考，實際金額以銀行/政府核定為準
+  </div>
+
+  <button class="contact-btn line" type="button">💬 LINE 跟吱吱店長諮詢</button>
+  <button class="contact-btn call" type="button">📞 直接打電話給吱吱店長</button>
+
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
