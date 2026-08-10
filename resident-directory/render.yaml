@@ -1,0 +1,18 @@
+# Render Blueprint：讓「連接 Google 帳號」在手機/電腦都能透過同一個公開 HTTPS 網址使用。
+# 使用方式見 README.md「雲端部署」章節。
+services:
+  - type: web
+    name: resident-directory
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: APP_PASSWORD
+        sync: false
+    disk:
+      name: resident-data
+      mountPath: /app/data
+      sizeGB: 1

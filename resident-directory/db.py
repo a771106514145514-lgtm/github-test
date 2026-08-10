@@ -110,7 +110,7 @@ def insert_record(rec: dict) -> int:
 def update_record(record_id: int, fields: dict) -> None:
     if not fields:
         return
-    allowed = {'name', 'phone', 'address', 'unit', 'raw_text', 'confidence', 'needs_review'}
+    allowed = {'name', 'phone', 'address', 'unit', 'raw_text', 'confidence', 'needs_review', 'local_file_path'}
     set_parts = []
     values = []
     for key, value in fields.items():

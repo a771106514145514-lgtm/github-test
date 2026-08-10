@@ -7,9 +7,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<header>
-  <h1>住戶資料整理系統</h1>
-  <p class="subtitle">整合 Excel／PDF／圖片中的住戶資料，統一格式方便搜尋</p>
+<header class="row" style="justify-content: space-between; padding-right: 32px;">
+  <div>
+    <h1>住戶資料整理系統</h1>
+    <p class="subtitle">整合 Excel／PDF／圖片中的住戶資料，統一格式方便搜尋</p>
+  </div>
+  <form method="post" action="/logout"><button type="submit" class="btn btn-secondary">登出</button></form>
 </header>
 
 <main>

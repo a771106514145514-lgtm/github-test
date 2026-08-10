@@ -9,6 +9,7 @@ import uuid
 
 from flask import Flask, request, jsonify, render_template, redirect, send_file, session, abort
 from openpyxl import Workbook
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 import db
 import google_drive as gdrive
@@ -21,6 +22,46 @@ os.environ.setdefault('OAUTHLIB_INSECURE_TRANSPORT', '1')
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-please-change')
+# 部署在 Render 等平台時，實際流量會先經過反向代理；沒有這行，Flask 會誤判成 http，
+# 導致產生的 OAuth redirect_uri 跟 Google Cloud 設定的 https 網址對不上。
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
+# 一旦部署到公開網址，裡面存的是真實住戶個資，絕不能讓任何人都能連進來看。
+# 設定 APP_PASSWORD 環境變數後，整個網站（含所有 API）都需要先輸入密碼才能使用。
+# 本機用 http://localhost 開發、只有自己看得到時，不設定這個變數也可以照常使用。
+APP_PASSWORD = os.environ.get('APP_PASSWORD')
+if APP_PASSWORD:
+    app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
+
+
+@app.before_request
+def require_login():
+    if not APP_PASSWORD:
+        return
+    if request.endpoint in ('login', 'static'):
+        return
+    if session.get('authenticated'):
+        return
+    if request.path.startswith('/api/') or request.path.startswith('/auth/'):
+        return jsonify({'error': '請先登入'}), 401
+    return redirect('/login')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form.get('password') and request.form.get('password') == APP_PASSWORD:
+            session['authenticated'] = True
+            return redirect('/')
+        error = '密碼錯誤，請再試一次'
+    return render_template('login.html', error=error)
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('authenticated', None)
+    return redirect('/login')
 
 EXTRACTOR_MAP = {
     '.xlsx': extract_excel,
@@ -150,8 +191,9 @@ def _run_scan_job(job_id: str, folder_id: str):
                 }]
 
             file_type = ext.lstrip('.').upper()
+            inserted_ids = []
             for rec in extracted:
-                db.insert_record({
+                rec_id = db.insert_record({
                     **rec,
                     'source_file_name': f['name'],
                     'source_folder_path': f['folder_path'],
@@ -159,6 +201,18 @@ def _run_scan_job(job_id: str, folder_id: str):
                     'file_type': file_type,
                     'local_file_path': local_path,
                 })
+                inserted_ids.append(rec_id)
+
+            # 這個來源檔案裡的每一筆都已經是高信心度、不需要人工複核，
+            # 就不用留著原始檔案佔雲端硬碟空間了（雲端部署時尤其重要，磁碟空間有限）。
+            # 需複核的資料才保留原始檔，方便使用者在編輯畫面對照校正。
+            if local_path and not any(rec.get('needs_review') for rec in extracted):
+                try:
+                    os.remove(local_path)
+                    for rec_id in inserted_ids:
+                        db.update_record(rec_id, {'local_file_path': ''})
+                except OSError:
+                    pass
 
         db.update_job(job_id, processed_files=len(files), current_file='',
                        status='done', finished_at=db.now_iso())
