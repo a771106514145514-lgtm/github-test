@@ -305,28 +305,37 @@
     <div class="card">
       <div class="card-title-wrap">
         <div class="card-title">車位折算</div>
-        <div class="card-subtitle">車位坪數・單價・總價，輸入任兩項自動算出</div>
+        <div class="card-subtitle">實價登錄或廣告傳單常包含車位價格與坪數，此功能可計算出「扣除車位後的真實房屋單價」</div>
       </div>
     </div>
 
     <div class="section">
       <div class="field">
+        <label>房屋總價（含車位） <span class="hint">萬</span></label>
+        <input type="text" inputmode="decimal" id="park-total" placeholder="例如: 2500">
+      </div>
+      <div class="field">
+        <label>權狀總坪數（含車位） <span class="hint">坪</span></label>
+        <input type="text" inputmode="decimal" id="park-totalping" placeholder="例如: 50">
+      </div>
+      <div class="field">
+        <label>車位價格 <span class="hint">萬</span></label>
+        <input type="text" inputmode="decimal" id="park-price" placeholder="例如: 200">
+      </div>
+      <div class="field">
         <label>車位坪數 <span class="hint">坪</span></label>
-        <input type="text" inputmode="decimal" id="park-ping" placeholder="例如: 8">
+        <input type="text" inputmode="decimal" id="park-ping" placeholder="例如: 10">
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label>車位單價 <span class="hint">萬/坪</span></label>
-          <input type="text" inputmode="decimal" id="park-unit" placeholder="例如: 22.5">
-        </div>
-        <div class="field">
-          <label>車位總價 <span class="hint">萬</span></label>
-          <input type="text" inputmode="decimal" id="park-total" placeholder="例如: 180">
-        </div>
+    </div>
+
+    <div class="result-box">
+      <div class="result-tile emph">
+        <div class="r-label">扣除車位後的真實房屋單價</div>
+        <div class="r-value" id="park-result-unit">—</div>
       </div>
-      <div class="formula-note">
-        填寫車位坪數後，輸入單價或總價其中一項，另一項會自動算出。<br>
-        常見行情參考：坡道平面式車位單價較高、機械式車位單價通常較低，實際依社區行情為準。
+      <div class="result-tile">
+        <div class="mini-result"><span class="mr-label">房屋價格（扣車位）</span><span class="mr-value" id="park-result-price">— 萬</span></div>
+        <div class="mini-result"><span class="mr-label">房屋坪數（扣車位）</span><span class="mr-value" id="park-result-ping">— 坪</span></div>
       </div>
     </div>
   </div>
@@ -474,15 +483,15 @@
     <div class="result-box">
       <div class="result-tile">
         <div class="r-label">房屋單價（談價用）</div>
-        <div class="r-value" id="net-result-unitprice">—<span class="r-unit">萬/坪</span></div>
+        <div class="r-value" id="net-result-unitprice">—</div>
       </div>
       <div class="result-tile">
         <div class="r-label">房地合一稅</div>
-        <div class="r-value" id="net-result-tax">—<span class="r-unit">萬</span></div>
+        <div class="r-value" id="net-result-tax">—</div>
       </div>
       <div class="result-tile emph">
         <div class="r-label">屋主實拿（扣全部費用 + 稅 + 貸款）</div>
-        <div class="r-value" id="net-result-net">—<span class="r-unit">萬</span></div>
+        <div class="r-value" id="net-result-net">—</div>
       </div>
 
       <div class="fee-list">
@@ -513,8 +522,8 @@
     © 2026 吱吱店長 萬能房產計算機｜僅供參考，實際金額以銀行/政府核定為準
   </div>
 
-  <button class="contact-btn line" type="button">💬 LINE 跟吱吱店長諮詢</button>
-  <button class="contact-btn call" type="button">📞 直接打電話給吱吱店長</button>
+  <a class="contact-btn line" href="https://line.me/ti/p/w5fr4JrOOB" target="_blank" rel="noopener">💬 LINE 跟吱吱店長諮詢</a>
+  <a class="contact-btn call" href="tel:0921166799">📞 直接打電話給吱吱店長</a>
 
 </div>
 

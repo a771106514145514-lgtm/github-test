@@ -9,6 +9,9 @@ const on = (el, ev, fn) => { if (el) el.addEventListener(ev, fn); };
 function fmt2(n) {
   return Number.isFinite(n) ? n.toLocaleString('zh-TW', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
 }
+function fmt2Unit(n, unit) {
+  return Number.isFinite(n) ? fmt2(n) + ' ' + unit : '—';
+}
 function fmtInt(n) {
   return Number.isFinite(n) ? Math.round(n).toLocaleString('zh-TW') : '—';
 }
@@ -143,9 +146,9 @@ function initHo() {
     }
 
     $('ho-result-tax').textContent = hasPrice ? fmtMoney(tax * 10000) : '$—';
-    $('ho-result-base').textContent = hasPrice ? fmt2(base) : '—';
+    $('ho-result-base').textContent = hasPrice ? fmt2Unit(base, '萬') : '—';
     $('ho-result-rate').textContent = hasPrice ? (selfUse ? '自用 10%（400萬以下免稅）' : (rate * 100).toFixed(0) + '%') : '—';
-    $('ho-result-transfer').textContent = hasPrice ? fmt2(transferFee) : '—';
+    $('ho-result-transfer').textContent = hasPrice ? fmt2Unit(transferFee, '萬') : '—';
   }
 
   computeHo();
@@ -293,33 +296,25 @@ function initConv() {
 // Tab 6: 車位折算
 // ------------------------------------------------------------
 function initPark() {
-  let updating = false;
+  ['park-total', 'park-totalping', 'park-price', 'park-ping'].forEach((id) => on($(id), 'input', computePark));
 
-  function recompute(source) {
-    if (updating) return;
-    updating = true;
-    const ping = numOf('park-ping');
-    if (source === 'unit') {
-      const unit = numOf('park-unit');
-      $('park-total').value = (ping > 0 && rawOf('park-unit') !== '') ? (unit * ping).toFixed(2) : $('park-total').value;
-    } else if (source === 'total') {
-      const total = numOf('park-total');
-      $('park-unit').value = (ping > 0 && rawOf('park-total') !== '') ? (total / ping).toFixed(2) : $('park-unit').value;
-    } else if (source === 'ping') {
-      const unit = numOf('park-unit');
-      const total = numOf('park-total');
-      if (rawOf('park-unit') !== '' && ping > 0) {
-        $('park-total').value = (unit * ping).toFixed(2);
-      } else if (rawOf('park-total') !== '' && ping > 0) {
-        $('park-unit').value = (total / ping).toFixed(2);
-      }
-    }
-    updating = false;
+  function computePark() {
+    const total = numOf('park-total');
+    const totalPing = numOf('park-totalping');
+    const parkPrice = numOf('park-price');
+    const parkPing = numOf('park-ping');
+    const hasInput = rawOf('park-total') !== '' && rawOf('park-totalping') !== '';
+
+    const housePrice = total - parkPrice;
+    const housePing = totalPing - parkPing;
+    const unit = housePing > 0 ? housePrice / housePing : NaN;
+
+    $('park-result-unit').textContent = hasInput ? fmt2Unit(unit, '萬/坪') : '—';
+    $('park-result-price').textContent = hasInput ? fmt2Unit(housePrice, '萬') : '—';
+    $('park-result-ping').textContent = hasInput ? fmt2Unit(housePing, '坪') : '—';
   }
 
-  on($('park-ping'), 'input', () => recompute('ping'));
-  on($('park-unit'), 'input', () => recompute('unit'));
-  on($('park-total'), 'input', () => recompute('total'));
+  computePark();
 }
 
 // ------------------------------------------------------------
@@ -438,21 +433,21 @@ function initNet() {
     const hp = housePing();
 
     const unitPrice = hp > 0 && hasPrice ? (T - numOf('net-parkprice')) / hp : NaN;
-    $('net-result-unitprice').textContent = fmt2(unitPrice);
+    $('net-result-unitprice').textContent = fmt2Unit(unitPrice, '萬/坪');
 
     const f = feesFor(T);
-    $('net-result-tax').textContent = hasPrice ? (f.hoTax === null ? '—' : fmt2(f.hoTax)) : '—';
-    $('net-result-net').textContent = hasPrice ? fmt2(f.net) : '—';
+    $('net-result-tax').textContent = hasPrice ? (f.hoTax === null ? '—' : fmt2Unit(f.hoTax, '萬')) : '—';
+    $('net-result-net').textContent = hasPrice ? fmt2Unit(f.net, '萬') : '—';
 
-    $('net-fee-scribe').textContent = fmt2(f.scribe);
-    $('net-fee-registry').textContent = fmt2(f.registry);
-    $('net-fee-escrow').textContent = hasPrice ? fmt2(f.escrow) : '—';
-    $('net-fee-svc').textContent = hasPrice ? fmt2(f.svc) : '—';
-    $('net-fee-cancel').textContent = fmt2(f.cancel);
-    $('net-fee-landtax').textContent = fmt2(f.landTax);
-    $('net-fee-hotax').textContent = hasPrice ? (f.hoTax === null ? '—' : fmt2(f.hoTax)) : '—';
-    $('net-fee-loanleft').textContent = fmt2(f.loanLeft);
-    $('net-fee-total').textContent = hasPrice ? fmt2(f.total) : '—';
+    $('net-fee-scribe').textContent = fmt2Unit(f.scribe, '萬');
+    $('net-fee-registry').textContent = fmt2Unit(f.registry, '萬');
+    $('net-fee-escrow').textContent = hasPrice ? fmt2Unit(f.escrow, '萬') : '—';
+    $('net-fee-svc').textContent = hasPrice ? fmt2Unit(f.svc, '萬') : '—';
+    $('net-fee-cancel').textContent = fmt2Unit(f.cancel, '萬');
+    $('net-fee-landtax').textContent = fmt2Unit(f.landTax, '萬');
+    $('net-fee-hotax').textContent = hasPrice ? (f.hoTax === null ? '—' : fmt2Unit(f.hoTax, '萬')) : '—';
+    $('net-fee-loanleft').textContent = fmt2Unit(f.loanLeft, '萬');
+    $('net-fee-total').textContent = hasPrice ? fmt2Unit(f.total, '萬') : '—';
   }
 
   // 反推實拿：屋主說「我要拿 __ 萬」→ 二分搜尋反推想賣的總價

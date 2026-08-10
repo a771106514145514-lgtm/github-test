@@ -419,11 +419,6 @@ body {
 .result-tile.emph .r-value {
   color: #fff;
 }
-.result-tile .r-unit {
-  font-size: 14px;
-  font-weight: 700;
-  margin-left: 2px;
-}
 
 .fee-list {
   background: #fff;
@@ -554,6 +549,7 @@ body {
   justify-content: center;
   gap: 8px;
   color: #fff;
+  text-decoration: none;
 }
 .contact-btn.line { background: var(--line-green); }
 .contact-btn.call { background: var(--navy); }
