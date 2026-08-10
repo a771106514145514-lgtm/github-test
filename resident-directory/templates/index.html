@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>住戶資料整理系統</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <h1>住戶資料整理系統</h1>
+  <p class="subtitle">整合 Excel／PDF／圖片中的住戶資料，統一格式方便搜尋</p>
+</header>
+
+<main>
+  <section class="card" id="connect-card">
+    <h2>1. 連接 Google 帳號</h2>
+    <div id="connect-not-configured" class="hidden notice">
+      尚未設定 Google API 憑證（credentials.json）。請先依 README.md 的步驟在 Google Cloud Console
+      建立 OAuth 用戶端，下載後放到 <code>resident-directory/credentials.json</code>，再重新整理本頁面。
+    </div>
+    <div id="connect-disconnected" class="hidden">
+      <p>尚未連接 Google 帳號，資料不會被讀取，直到您點擊下方按鈕並完成授權。</p>
+      <button id="btn-connect" class="btn btn-primary">連接 Google 帳號</button>
+    </div>
+    <div id="connect-connected" class="hidden">
+      <p>✅ 已連接 Google 帳號</p>
+      <button id="btn-disconnect" class="btn btn-secondary">中斷連接</button>
+    </div>
+  </section>
+
+  <section class="card" id="scan-card">
+    <h2>2. 選擇資料夾並開始整理</h2>
+    <p class="hint">貼上 Google 雲端硬碟資料夾的連結，或直接輸入資料夾 ID。程式會遞迴掃描該資料夾內所有子資料夾。</p>
+    <div class="row">
+      <input type="text" id="folder-input" placeholder="https://drive.google.com/drive/folders/xxxxxxxx">
+      <button id="btn-scan" class="btn btn-primary">開始掃描與整理</button>
+    </div>
+    <div id="scan-progress" class="hidden">
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <p id="progress-text"></p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. 搜尋 / 瀏覽資料</h2>
+    <div class="row">
+      <input type="text" id="search-input" placeholder="輸入姓名、電話、地址或戶號關鍵字…">
+      <label class="checkbox-label">
+        <input type="checkbox" id="filter-needs-review"> 只顯示需複核
+      </label>
+      <button id="btn-export" class="btn btn-secondary">匯出 Excel</button>
+    </div>
+    <p id="stats-line" class="hint"></p>
+    <div class="table-wrap">
+      <table id="records-table">
+        <thead>
+          <tr>
+            <th>姓名</th><th>電話</th><th>地址</th><th>戶號</th>
+            <th>信心度</th><th>來源檔案</th><th>檔案類型</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="records-tbody"></tbody>
+      </table>
+    </div>
+    <div class="row" id="pagination">
+      <button id="btn-prev" class="btn btn-secondary">上一頁</button>
+      <span id="page-label"></span>
+      <button id="btn-next" class="btn btn-secondary">下一頁</button>
+    </div>
+  </section>
+</main>
+
+<div id="modal-backdrop" class="hidden">
+  <div id="modal">
+    <h3>編輯資料</h3>
+    <label>姓名 <input id="edit-name" type="text"></label>
+    <label>電話 <input id="edit-phone" type="text"></label>
+    <label>地址 <input id="edit-address" type="text"></label>
+    <label>戶號 <input id="edit-unit" type="text"></label>
+    <label>原始擷取文字（供比對用）
+      <textarea id="edit-raw" rows="5" readonly></textarea>
+    </label>
+    <div id="preview-area"></div>
+    <div class="row">
+      <label class="checkbox-label"><input type="checkbox" id="edit-mark-reviewed"> 標記為已確認（不再需要複核）</label>
+    </div>
+    <div class="row">
+      <button id="btn-save" class="btn btn-primary">儲存</button>
+      <button id="btn-close-modal" class="btn btn-secondary">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
