@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>登入 - 住戶資料整理系統</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main style="max-width:360px; margin:80px auto;">
+  <div class="card">
+    <h2>住戶資料整理系統</h2>
+    <p class="hint">此系統含有真實住戶個資，請輸入密碼繼續。</p>
+    {% if error %}<div class="notice">{{ error }}</div>{% endif %}
+    <form method="post">
+      <div class="row">
+        <input type="password" name="password" placeholder="請輸入密碼" autofocus required>
+      </div>
+      <div class="row">
+        <button type="submit" class="btn btn-primary">登入</button>
+      </div>
+    </form>
+  </div>
+</main>
+</body>
+</html>
